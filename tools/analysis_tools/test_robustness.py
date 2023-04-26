@@ -19,6 +19,7 @@ from mmdet.core import eval_map
 from mmdet.datasets import build_dataloader, build_dataset
 from mmdet.models import build_detector
 from tools.analysis_tools.robustness_eval import get_results
+import van
 
 
 def coco_eval_with_return(result_files,
@@ -303,7 +304,7 @@ def main():
                     show_dir = osp.join(show_dir, corruption)
                     show_dir = osp.join(show_dir, str(corruption_severity))
                     if not osp.exists(show_dir):
-                        osp.makedirs(show_dir)
+                        os.makedirs(show_dir)
                 outputs = single_gpu_test(model, data_loader, args.show,
                                           show_dir, args.show_score_thr)
             else:

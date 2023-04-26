@@ -15,6 +15,12 @@ from mmdet.datasets import (build_dataloader, build_dataset,
 from mmdet.models import build_detector
 from mmdet.utils import replace_cfg_vals, update_data_root
 
+from mmengine.device import get_max_cuda_memory
+
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '../../../'))
+import van
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='MMDet benchmark a model')
@@ -100,6 +106,7 @@ def measure_inference_speed(cfg, checkpoint, max_iter, log_interval,
     num_warmup = 5
     pure_inf_time = 0
     fps = 0
+    max_cuda_mem = 0
 
     # benchmark with 2000 image and take the average
     for i, data in enumerate(data_loader):
@@ -117,17 +124,23 @@ def measure_inference_speed(cfg, checkpoint, max_iter, log_interval,
             pure_inf_time += elapsed
             if (i + 1) % log_interval == 0:
                 fps = (i + 1 - num_warmup) / pure_inf_time
+                cuda_memory = get_max_cuda_memory()
+                if cuda_memory > max_cuda_mem:
+                    max_cuda_mem = cuda_memory
+
                 print(
                     f'Done image [{i + 1:<3}/ {max_iter}], '
                     f'fps: {fps:.1f} img / s, '
                     f'times per image: {1000 / fps:.1f} ms / img',
+                    f'cuda memory: {cuda_memory}MB',
                     flush=True)
 
         if (i + 1) == max_iter:
             fps = (i + 1 - num_warmup) / pure_inf_time
             print(
                 f'Overall fps: {fps:.1f} img / s, '
-                f'times per image: {1000 / fps:.1f} ms / img',
+                f'times per image: {1000 / fps:.1f} ms / img\n',
+                f'Max cuda memory: {max_cuda_mem}MB',
                 flush=True)
             break
     return fps

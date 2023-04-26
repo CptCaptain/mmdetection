@@ -12,6 +12,11 @@ try:
 except ImportError:
     raise ImportError('Please upgrade mmcv to >0.6.2')
 
+import os
+import sys
+sys.path.insert(1, os.path.join(sys.path[0], '../../../'))
+import van
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
