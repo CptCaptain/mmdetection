@@ -258,19 +258,25 @@ class MMDetWandbHook(WandbLoggerHook):
                 and self.every_n_iters(runner, self.ckpt_interval)
                 or (self.ckpt_hook.save_last and self.is_last_iter(runner))):
             if self.log_checkpoint_metadata and self.eval_hook:
-                metadata = {
-                    'iter': runner.iter + 1,
-                    **self._get_eval_results()
-                }
+                try:
+                        metadata = {
+                            'iter': runner.iter + 1,
+                            **self._get_eval_results()
+                        }
+                except AssertionError:
+                        metadata = None
             else:
                 metadata = None
             aliases = [f'iter_{runner.iter + 1}', 'latest']
             model_path = osp.join(self.ckpt_hook.out_dir,
                                   f'iter_{runner.iter + 1}.pth')
-            self._log_ckpt_as_artifact(model_path, aliases, metadata)
+            try:
+                self._log_ckpt_as_artifact(model_path, aliases, metadata)
+            except:
+                pass
 
         # Save prediction table
-        if self.log_evaluation and self.eval_hook._should_evaluate(runner):
+        if self.log_evaluation and self.eval_hook._should_evaluate(runner) and self.eval_hook.latest_results:
             results = self.eval_hook.latest_results
             # Initialize evaluation table
             self._init_pred_table()
@@ -329,7 +335,13 @@ class MMDetWandbHook(WandbLoggerHook):
         # Get image loading pipeline
         from mmdet.datasets.pipelines import LoadImageFromFile
         img_loader = None
-        for t in self.val_dataset.pipeline.transforms:
+
+        # My new dataset seems to be constructed somewhat differently
+        transform_iterator = self.val_dataset.pipeline.transforms
+        # if 'transforms' not in self.val_dataset.pipeline:
+            # transform_iterator = self.val_dataset.pipeline
+
+        for t in transform_iterator:
             if isinstance(t, LoadImageFromFile):
                 img_loader = t
 
