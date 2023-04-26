@@ -12,6 +12,7 @@ from numpy import random
 from mmdet.core import BitmapMasks, PolygonMasks, find_inside_bboxes
 from mmdet.core.evaluation.bbox_overlaps import bbox_overlaps
 from mmdet.utils import log_img_scale
+from mmdet.datasets import build_dataset
 from ..builder import PIPELINES
 
 try:
@@ -2966,3 +2967,4 @@ class CopyPaste:
         repr_str += f'mask_occluded_thr={self.mask_occluded_thr}, '
         repr_str += f'selected={self.selected}, '
         return repr_str
+

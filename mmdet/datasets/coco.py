@@ -249,7 +249,13 @@ class CocoDataset(CustomDataset):
                     data['image_id'] = img_id
                     data['bbox'] = self.xyxy2xywh(bboxes[i])
                     data['score'] = float(bboxes[i][4])
-                    data['category_id'] = self.cat_ids[label]
+                    # FIXME this shouldn't be necessary, find out why this is
+                    try:
+                        data['category_id'] = self.cat_ids[label]
+                    except IndexError as e:
+                        print(e)
+                        print('Index out of bounds, setting data[\'category_id\'] to last element of self.cat_ids')
+                        data['category_id'] = self.cat_ids[-1]
                     json_results.append(data)
         return json_results
 

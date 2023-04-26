@@ -364,7 +364,11 @@ class MultiImageMixDataset:
                  pipeline,
                  dynamic_scale=None,
                  skip_type_keys=None,
-                 max_refetch=15):
+                 max_refetch=15,
+                 # test_mode get's set vor val and test.
+                 # We don't use it, but need to expect it being there
+                 test_mode=False,
+                 ):
         if dynamic_scale is not None:
             raise RuntimeError(
                 'dynamic_scale is deprecated. Please use Resize pipeline '
@@ -394,6 +398,7 @@ class MultiImageMixDataset:
             self.flag = dataset.flag
         self.num_samples = len(dataset)
         self.max_refetch = max_refetch
+        self.test_mode = test_mode
 
     def __len__(self):
         return self.num_samples
